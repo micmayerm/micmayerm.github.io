@@ -1,0 +1,27 @@
+name: Cross-post article
+
+on:
+  workflow_dispatch:
+    inputs:
+      slug:
+        description: 'Post slug (filename in src/content/blog without extension)'
+        required: true
+      platforms:
+        description: 'Comma-separated platforms'
+        required: false
+        default: 'devto,hashnode'
+
+jobs:
+  crosspost:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Cross-post
+        env:
+          DEVTO_API_KEY: ${{ secrets.DEVTO_API_KEY }}
+          HASHNODE_PAT: ${{ secrets.HASHNODE_PAT }}
+          HASHNODE_PUBLICATION_ID: ${{ secrets.HASHNODE_PUBLICATION_ID }}
+        run: node scripts/crosspost.mjs "${{ inputs.slug }}" --platforms "${{ inputs.platforms }}"
